@@ -3,6 +3,7 @@ import wandb
 from tqdm.auto import tqdm
 from torchmetrics import AUROC
 from dataset import ImageDatasetFromParquet
+import torchvision.transforms as T
 
 DEVICE = "cuda"
 TRAIN_BATCH_SIZE = 128
@@ -11,14 +12,23 @@ TEST_BATCH_SIZE = 128
 
 wandb.init(project="gsoc")
 
+
+required_transform = [
+    T.Resize(32),
+    T.RandomHorizontalFlip(),
+    T.RandomVerticalFlip(),
+    # T.RandomAdjustSharpness(0.5, p=0.1),
+]
+
+
 run_0_path = "/scratch/gsoc/parquet_ds/QCDToGGQQ_IMGjet_RH1all_jet0_run0_n36272.test.snappy.parquet"
 run_1_path = "/scratch/gsoc/parquet_ds/QCDToGGQQ_IMGjet_RH1all_jet0_run1_n47540.test.snappy.parquet"
 run_2_path = "/scratch/gsoc/parquet_ds/QCDToGGQQ_IMGjet_RH1all_jet0_run2_n55494.test.snappy.parquet"
 
 
-run_0_ds = ImageDatasetFromParquet(run_0_path)
-run_1_ds = ImageDatasetFromParquet(run_1_path)
-run_2_ds = ImageDatasetFromParquet(run_2_path)
+run_0_ds = ImageDatasetFromParquet(run_0_path, transforms=required_transform)
+run_1_ds = ImageDatasetFromParquet(run_1_path, transforms=required_transform)
+run_2_ds = ImageDatasetFromParquet(run_2_path, transforms=required_transform)
 
 combined_dset = torch.utils.data.ConcatDataset([run_0_ds, run_1_ds])
 
@@ -36,9 +46,9 @@ train_dset, val_dset, test_dset = torch.utils.data.random_split(
 )
 
 
-train_loader = torch.utils.data.DataLoader(train_dset, shuffle=True, batch_size=TRAIN_BATCH_SIZE)
-val_loader = torch.utils.data.DataLoader(val_dset, shuffle=False, batch_size=VAL_BATCH_SIZE)
-test_loader = torch.utils.data.DataLoader(test_dset, shuffle=False, batch_size=TEST_BATCH_SIZE)
+train_loader = torch.utils.data.DataLoader(train_dset, shuffle=True, batch_size=TRAIN_BATCH_SIZE, pin_memory=True, num_workers=10)
+val_loader = torch.utils.data.DataLoader(val_dset, shuffle=False, batch_size=VAL_BATCH_SIZE, pin_memory=True, num_workers=10)
+test_loader = torch.utils.data.DataLoader(test_dset, shuffle=False, batch_size=TEST_BATCH_SIZE, num_workers=10)
 
 ####################### MODEL #########################
 
@@ -74,10 +84,10 @@ for epoch in range(NUM_EPOCHS):
     for it, batch in enumerate(tqdm_iter):
         optimizer.zero_grad()
 
-        X, y = batch['X_jets'], batch['y']
+        X, y = batch['X_jets'].float(), batch['y']
 
-        X = X.to(DEVICE)
-        y = y.to(DEVICE)
+        X = X.to(DEVICE, non_blocking=True)
+        y = y.to(DEVICE, non_blocking=True)
 
         out = model(X)
 
@@ -109,10 +119,10 @@ for epoch in range(NUM_EPOCHS):
 
     for it, batch in enumerate(val_tqdm_iter):
         with torch.no_grad():
-            X, y = batch['X_jets'], batch['y']
+            X, y = batch['X_jets'].float(), batch['y']
 
-            X = X.to(DEVICE)
-            y = y.to(DEVICE)
+            X = X.to(DEVICE, non_blocking=True)
+            y = y.to(DEVICE, non_blocking=True)
 
             out = model(X)
 
