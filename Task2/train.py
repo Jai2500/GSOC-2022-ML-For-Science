@@ -74,7 +74,7 @@ for epoch in range(NUM_EPOCHS):
     for it, batch in enumerate(tqdm_iter):
         optimizer.zero_grad()
 
-        X, y = batch[0], batch[1]
+        X, y = batch['X_jets'], batch['y']
 
         X = X.to(DEVICE)
         y = y.to(DEVICE)
@@ -109,7 +109,7 @@ for epoch in range(NUM_EPOCHS):
 
     for it, batch in enumerate(val_tqdm_iter):
         with torch.no_grad():
-            X, y = batch[0], batch[1]
+            X, y = batch['X_jets'], batch['y']
 
             X = X.to(DEVICE)
             y = y.to(DEVICE)
