@@ -15,7 +15,11 @@ wandb.init(project="gsoc")
 
 ######################## DATASET ########################
 
-required_transform = []
+required_transform = [
+    T.RandomHorizontalFlip(),
+    T.RandomVerticalFlip(),
+    T.RandomAdjustSharpness(0.5, p=0.1),
+]
 
 photon_file_path = "/scratch/gsoc/SinglePhotonPt50_IMGCROPS_n249k_RHv1.hdf5"
 electron_file_path = "/scratch/gsoc/SingleElectronPt50_IMGCROPS_n249k_RHv1.hdf5"
