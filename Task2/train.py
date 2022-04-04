@@ -4,6 +4,7 @@ from tqdm.auto import tqdm
 from torchmetrics import AUROC
 from dataset import ImageDatasetFromParquet
 import torchvision.transforms as T
+import torchvision
 
 DEVICE = "cuda"
 TRAIN_BATCH_SIZE = 128
@@ -14,7 +15,7 @@ wandb.init(project="gsoc")
 
 
 required_transform = [
-    T.Resize(32),
+    T.Resize(224),
     T.RandomHorizontalFlip(),
     T.RandomVerticalFlip(),
     # T.RandomAdjustSharpness(0.5, p=0.1),
@@ -52,9 +53,11 @@ test_loader = torch.utils.data.DataLoader(test_dset, shuffle=False, batch_size=T
 
 ####################### MODEL #########################
 
-model = torch.hub.load(
-    "chenyaofo/pytorch-cifar-models", "cifar10_resnet20", pretrained=False
-)
+# model = torch.hub.load(
+#     "chenyaofo/pytorch-cifar-models", "cifar10_resnet20", pretrained=False
+# )
+
+model = torchvision.models.resnet34(pretrained=True)
 
 in_features = model.fc.in_features
 
