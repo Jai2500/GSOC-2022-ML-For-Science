@@ -110,7 +110,7 @@ for epoch in range(NUM_EPOCHS):
 
         tqdm_iter.set_postfix(loss=loss.item())
         wandb.log({
-            "train_loss": loss.item(),
+            "train_mse_loss": loss.item(),
             "train_step": (it * TRAIN_BATCH_SIZE) + epoch * train_size
         })
 
@@ -135,6 +135,6 @@ for epoch in range(NUM_EPOCHS):
 
             val_tqdm_iter.set_postfix(loss=loss.item())
             wandb.log({
-                "val_loss": loss.item(),
+                "val_mse_loss": loss.item(),
                 "val_step": (it * VAL_BATCH_SIZE) + epoch * val_size
             })
