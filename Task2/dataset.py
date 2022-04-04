@@ -18,7 +18,7 @@ class ImageDatasetFromParquet(torch.utils.data.Dataset):
     def __getitem__(self, idx, ):
         row = self.file.read_row_group(idx).to_pydict()
         to_return = {
-            "X_jets": self.transforms(np.array(row['X_jets'][0])),
+            "X_jets": self.transforms(np.array(row['X_jets'][0]).reshape(125, 125, 3)),
             "y": row['y'][0]
         }
         
