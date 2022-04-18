@@ -16,7 +16,7 @@ class PointCloudFromParquetDataset(torch.utils.data.Dataset):
         idx = np.where(arr.sum(axis=0) > 0)
         pos = np.array(idx).T / arr.shape[1]
         x = arr[:, idx[0], idx[1]].T
-        x = torch.cat([x, pos], dim=1)
+        x = np.concatenate([x, pos], axis=1)
         
         y = row['y'][0]
         pt = row['pt'][0]
