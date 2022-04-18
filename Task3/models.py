@@ -1,3 +1,4 @@
+from turtle import forward
 import torch_geometric
 import torch
 
@@ -83,5 +84,36 @@ class DGCNN(torch.nn.Module):
         return self.out_nn(x_out)
 
 class SimpleGAT(torch.nn.Module):
-    def __init__(self):
+    def __init__(self, k=7):
         super().__init__()
+        self.k = k
+        self.gat_conv_1 = torch_geometric.nn.GATv2Conv(
+            in_channels=5,
+            out_channels=16,
+            heads=4
+        )
+        self.gat_conv_2 = torch_geometric.nn.GATv2Conv(
+            in_channels=16 * 4,
+            out_channels=32,
+            heads=4
+        )
+
+        self.out_nn = torch.nn.Linear(32 * 4, 1)
+
+    def forward(self, data):
+        pos = data.pos
+        batch = data.batch
+        x = data.x
+
+        edge_index = torch_geometric.nn.knn_graph(x=pos, k=self.k, batch=batch)
+
+        x_out = self.gat_conv_1(
+            x, edge_index
+        )
+        x_out = self.gat_conv_2(
+            x_out, edge_index
+        )
+
+        x_out = torch_geometric.nn.global_mean_pool(x_out, batch)
+
+        return self.out_nn(x_out)

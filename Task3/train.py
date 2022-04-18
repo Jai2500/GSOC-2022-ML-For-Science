@@ -2,7 +2,7 @@ import torch
 import wandb
 from tqdm.auto import tqdm
 from torchmetrics import AUROC
-from models import DGCNN
+from models import DGCNN, SimpleGAT
 from dataset import PointCloudFromParquetDataset
 import torch_geometric
 
@@ -10,6 +10,7 @@ DEVICE = "cuda"
 TRAIN_BATCH_SIZE = 64
 VAL_BATCH_SIZE = 64
 TEST_BATCH_SIZE = 64
+MODEL = 'dgcnn'
 
 wandb.init(project="gsoc")
 
@@ -46,7 +47,12 @@ test_loader = torch_geometric.data.DataLoader(test_dset, shuffle=False, batch_si
 
 ####################### MODEL #########################
 
-model = DGCNN(k=20)
+if MODEL == 'dgcnn':
+    model = DGCNN(k=20)
+elif MODEL == 'gat':
+    model = SimpleGAT(k=20)
+else:
+    raise ValueError(f"Invalid type MODEL: {MODEL}")
 
 model = model.to(DEVICE)
 
