@@ -1,27 +1,30 @@
 import pyarrow.parquet as pq
 import numpy as np
 import torch 
+import torch_geometric
 
-class ImageDatasetFromParquet(torch.utils.data.Dataset):
-    def __init__(self, filename, transforms=[], return_regress=False) -> None:
+class PointCloudFromParquetDataset(torch.utils.data.Dataset):
+    def __init__(self, filename) -> None:
         super().__init__()
 
         self.file = pq.ParquetFile(filename)
 
-        self.return_regress = return_regress
-    
     def __getitem__(self, idx, ):
         row = self.file.read_row_group(idx).to_pydict()
-        to_return = {
-            "X_jets": self.transforms(np.array(row['X_jets'][0]).reshape(125, 125, 3)),
-            "y": row['y'][0]
-        }
         
-        if self.return_regress:
-            to_return['pt'] = row['pt'][0]
-            to_return['m0'] = row['m0'][0]
+        arr = np.array(row['X_jets'][0])
+        idx = np.where(arr.sum(axis=0) > 0)
+        pos = np.array(idx).T / arr.shape[1]
+        x = arr[:, idx[0], idx[1]].T
+        x = torch.cat([x, pos], dim=1)
+        
+        y = row['y'][0]
+        pt = row['pt'][0]
+        m0 = row['m0'][0]
 
-        return to_return
+        data = torch_geometric.data.Data(pos=pos, x=x, y=y, pt=pt, m0=m0)
+
+        return data
 
     def __len__(self):
         return self.file.num_row_groups
