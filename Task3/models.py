@@ -78,6 +78,10 @@ class DGCNN(torch.nn.Module):
             x_out, x_out, batch
         )
 
-        x_out = torch_geometric.nn.global_avg_pool(x_out, batch)
+        x_out = torch_geometric.nn.global_mean_pool(x_out, batch)
 
         return self.out_nn(x_out)
+
+class SimpleGAT(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
