@@ -46,14 +46,23 @@ class DGCNN(torch.nn.Module):
         super().__init__()
         self.dynamic_conv_1 = DynamicEdgeConvPN(
             edge_nn=MLPStack(
-                [10, 32, 32, 32], bn=True, act=True
+                [10, 16, 16, 16], bn=True, act=True
             ),
             nn=MLPStack(
-                [5, 32, 32, 32], bn=True, act=True
+                [5, 16, 16, 16], bn=True, act=True
             ),
         )
 
         self.dynamic_conv_2 = DynamicEdgeConvPN(
+            edge_nn=MLPStack(
+                [32, 32, 32, 32], bn=True, act=True
+            ),
+            nn=MLPStack(
+                [16, 32, 32, 32], bn=True, act=True
+            ),
+        )
+
+        self.dynamic_conv_3 = DynamicEdgeConvPN(
             edge_nn=MLPStack(
                 [64, 64, 64, 64], bn=True, act=True
             ),
@@ -73,6 +82,9 @@ class DGCNN(torch.nn.Module):
             x, pos, batch
         )
         x_out = self.dynamic_conv_2(
+            x_out, x_out, batch
+        )
+        x_out = self.dynamic_conv_3(
             x_out, x_out, batch
         )
 
