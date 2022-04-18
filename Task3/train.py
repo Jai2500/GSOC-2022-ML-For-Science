@@ -4,6 +4,7 @@ from tqdm.auto import tqdm
 from torchmetrics import AUROC
 from models import DGCNN
 from dataset import PointCloudFromParquetDataset
+import torch_geometric
 
 DEVICE = "cuda"
 TRAIN_BATCH_SIZE = 64
@@ -39,9 +40,9 @@ train_dset, val_dset, test_dset = torch.utils.data.random_split(
 )
 
 
-train_loader = torch.utils.data.DataLoader(train_dset, shuffle=True, batch_size=TRAIN_BATCH_SIZE, pin_memory=True, num_workers=10)
-val_loader = torch.utils.data.DataLoader(val_dset, shuffle=False, batch_size=VAL_BATCH_SIZE, pin_memory=True, num_workers=10)
-test_loader = torch.utils.data.DataLoader(test_dset, shuffle=False, batch_size=TEST_BATCH_SIZE, num_workers=10)
+train_loader = torch_geometric.data.DataLoader(train_dset, shuffle=True, batch_size=TRAIN_BATCH_SIZE, pin_memory=True, num_workers=10)
+val_loader = torch_geometric.data.DataLoader(val_dset, shuffle=False, batch_size=VAL_BATCH_SIZE, pin_memory=True, num_workers=10)
+test_loader = torch_geometric.data.DataLoader(test_dset, shuffle=False, batch_size=TEST_BATCH_SIZE, num_workers=10)
 
 ####################### MODEL #########################
 
