@@ -42,33 +42,26 @@ class DynamicEdgeConvPN(torch.nn.Module):
 
 
 class DGCNN(torch.nn.Module):
-    def __init__(self):
+    def __init__(self, k=7):
         super().__init__()
         self.dynamic_conv_1 = DynamicEdgeConvPN(
             edge_nn=MLPStack(
-                [10, 16, 16, 16], bn=True, act=True
+                [10, 32, 32, 32], bn=True, act=True
             ),
             nn=MLPStack(
-                [5, 16, 16, 16], bn=True, act=True
+                [5, 32, 32, 32], bn=True, act=True
             ),
+            k=k
         )
 
         self.dynamic_conv_2 = DynamicEdgeConvPN(
-            edge_nn=MLPStack(
-                [32, 32, 32, 32], bn=True, act=True
-            ),
-            nn=MLPStack(
-                [16, 32, 32, 32], bn=True, act=True
-            ),
-        )
-
-        self.dynamic_conv_3 = DynamicEdgeConvPN(
             edge_nn=MLPStack(
                 [64, 64, 64, 64], bn=True, act=True
             ),
             nn=MLPStack(
                 [32, 64, 64, 64], bn=True, act=True
             ),
+            k=k
         )
 
         self.out_nn = torch.nn.Linear(64, 1)
@@ -84,10 +77,7 @@ class DGCNN(torch.nn.Module):
         x_out = self.dynamic_conv_2(
             x_out, x_out, batch
         )
-        x_out = self.dynamic_conv_3(
-            x_out, x_out, batch
-        )
 
-        x_out = torch_geometric.nn.global_max_pool(x_out, batch)
+        x_out = torch_geometric.nn.global_avg_pool(x_out, batch)
 
         return self.out_nn(x_out)

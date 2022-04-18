@@ -46,7 +46,7 @@ test_loader = torch_geometric.data.DataLoader(test_dset, shuffle=False, batch_si
 
 ####################### MODEL #########################
 
-model = DGCNN()
+model = DGCNN(k=20)
 
 model = model.to(DEVICE)
 
