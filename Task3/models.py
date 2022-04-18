@@ -76,6 +76,6 @@ class DGCNN(torch.nn.Module):
             x_out, x_out, batch
         )
 
-        x_out = torch.nn.global_max_pool(x_out)
+        x_out = torch_geometric.nn.global_max_pool(x_out)
 
         return self.out_nn(x_out)
