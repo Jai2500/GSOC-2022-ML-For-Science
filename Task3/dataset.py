@@ -22,7 +22,7 @@ class PointCloudFromParquetDataset(torch.utils.data.Dataset):
         pt = row['pt'][0]
         m0 = row['m0'][0]
 
-        data = torch_geometric.data.Data(pos=pos, x=x, y=y, pt=pt, m0=m0)
+        data = torch_geometric.data.Data(pos=torch.as_tensor(pos), x=torch.as_tensor(x), y=torch.as_tensor(y))
 
         return data
 
